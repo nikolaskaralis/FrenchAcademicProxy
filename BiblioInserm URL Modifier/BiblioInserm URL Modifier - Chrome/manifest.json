@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "BiblioInserm URL Modifier",
+  "version": "1.0",
+  "author": "Nikolas Karalis",
+  "description": "This is an extension that automatically changes the URL of journal websites to provide access through the BiblioInserm proxy.",
+  "homepage_url": "http://www.neuronaldynamics.eu",
+  "permissions": [
+    "tabs"
+  ],
+    
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png",
+    "256": "icons/256.png",
+    "512": "icons/512.png"
+  },
+    
+    
+  "background": {
+    "service_worker": "background.js"
+  }
+}
