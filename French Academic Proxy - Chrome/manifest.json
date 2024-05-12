@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "French Academic Proxy",
+  "version": "1.2",
+  "author": "Nikolas Karalis",
+  "description": "This is an extension that automatically changes the URL of journal websites to provide access through the INSERM or CNRS proxy.",
+  "homepage_url": "http://www.neuronaldynamics.eu",
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "options_ui": {
+    "page": "options.html"
+  }
+}
