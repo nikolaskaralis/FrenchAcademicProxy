@@ -7,8 +7,13 @@
   "homepage_url": "http://www.neuronaldynamics.eu",
   "permissions": [
     "storage",
-    "tabs"
+    "tabs",
+    "scripting",
+    "clipboardWrite"
   ],
+    "host_permissions": [
+  "<all_urls>"
+],
   "icons": {
     "16": "icons/16.png",
     "48": "icons/48.png",
@@ -16,6 +21,14 @@
   },
   "background": {
     "service_worker": "background.js"
+  },
+  "action": {    
+    "default_icon": {
+      "16": "icons/16.png",
+      "48": "icons/48.png",
+      "128": "icons/128.png"
+    },
+    "default_title": "Copy URL"
   },
   "options_ui": {
     "page": "options.html"

@@ -107,7 +107,6 @@ const domainsList = {
 "science.org",
 "sciencedirect.com",
 "sciencemag.org",
-"sciencesconf.org",
 "scifinder.cas.org",
 "scopus.com",
 "search.ebscohost.com",
@@ -118,7 +117,6 @@ const domainsList = {
 "tandfonline.com",
 "taylorandfrancis.com",
 "taylorfrancis.com",
-"themeta.news",
 "thieme-connect.com",
 "webofknowledge.com"
   ],
@@ -142,7 +140,6 @@ const domainsList = {
 "pubs.acs.org",
 "repo.scoap3.org",
 "search.ebscohost.com",
-"themeta.news",
 "arabidopsis.org",
 "emeraldinsight.com",
 "girinst.org",
@@ -150,3 +147,7 @@ const domainsList = {
 "sciencedirect.com"
   ]
 };
+
+const exclusionList = [
+  "static-content.springer.com"  
+];

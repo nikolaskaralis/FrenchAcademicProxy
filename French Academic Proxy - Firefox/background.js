@@ -1,10 +1,43 @@
 // background.js
+
+// Store the original URL only once before any modification
+function storeOriginalUrl(url) {
+  const urlObj = new URL(url);
+  const hostname = urlObj.hostname;
+
+  // Log storing original URL for debugging
+  console.log("Storing original URL:", url);
+
+  // Only store if it's not already modified
+  const isModified = hostname.includes('.proxy.insermbiblio.inist.fr') || hostname.includes('.insb.bib.cnrs.fr');
+
+  if (!isModified) {
+    // Store the original URL in local storage
+    browser.storage.local.set({ originalUrl: url }).then(() => {
+      console.log("Stored original URL in storage:", url);
+    }).catch((err) => {
+      console.error("Error storing original URL:", err);
+    });
+  } else {
+    console.log("URL is modified, skipping original storage.");
+  }
+}
+
 function modifyURL(details) {
   const url = new URL(details.url);
 
+  // Store the original URL if it's the first time the request is seen
+  storeOriginalUrl(details.url);  // Store before any modification
+
+  // Check if the URL is in the exclusion list
+  if (exclusionList.includes(url.hostname)) {
+    console.log(`Excluding URL: ${url.hostname}`);
+    return {}; // Skip modification if it's in the exclusion list
+  }
+
   // Get user-selected modification type from storage
   return browser.storage.local.get("modificationType").then((result) => {
-    const modificationType = result.modificationType || "INSERM"; // Default to CNRS
+    const modificationType = result.modificationType || "INSERM"; // Default to INSERM
 
     console.log("Modification Type:", modificationType);
 
@@ -15,7 +48,7 @@ function modifyURL(details) {
       if (url.hostname.endsWith(domainToModify)) {
         let modifiedDomain = "";
 
-        // Check modification type and update the domain accordingly
+        // Modify the domain name based on the modification type
         if (modificationType === "INSERM") {
           modifiedDomain = `${url.hostname.split('.').join('-')}.proxy.insermbiblio.inist.fr`;
         } else if (modificationType === "CNRS") {
@@ -33,6 +66,51 @@ function modifyURL(details) {
   });
 }
 
+// Listen for web requests and modify URLs accordingly
+browser.webRequest.onBeforeRequest.addListener(
+  modifyURL,
+  { urls: ["<all_urls>"], types: ["main_frame"] },
+  ["blocking"]
+);
+
+
+// Handle extension button click (URL Bar)
+browser.browserAction.onClicked.addListener(() => {
+  // Retrieve the original URL from storage
+  browser.storage.local.get(["originalUrl"]).then((result) => {
+    if (result.originalUrl) {
+      console.log("Retrieved original URL from storage:", result.originalUrl);
+      // Copy the original URL to the clipboard
+      navigator.clipboard.writeText(result.originalUrl).then(() => {
+        console.log("Copied original URL to clipboard:", result.originalUrl);
+      }).catch((err) => {
+        console.error("Failed to copy original URL:", err);
+      });
+    } else {
+      console.error("No original URL found in storage.");
+    }
+  }).catch((err) => {
+    console.error("Error retrieving original URL:", err);
+  });
+});
+
+
+
+browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.url) {
+    storeOriginalUrl(changeInfo.url);
+  }
+});
+
+// Use webNavigation to track the tab loading
+browser.webNavigation.onCompleted.addListener((details) => {
+  storeOriginalUrl(details.url);
+}, { url: [{hostContains: "www"}] });
+
+const exclusionList = [
+  "static-content.springer.com"  
+];
+    
 function getDomainsToModify(modificationType) {
   // Define and return the appropriate set of domains based on the modification type
   if (modificationType === "INSERM") {
@@ -143,7 +221,6 @@ function getDomainsToModify(modificationType) {
 "science.org",
 "sciencedirect.com",
 "sciencemag.org",
-"sciencesconf.org",
 "scifinder.cas.org",
 "scopus.com",
 "search.ebscohost.com",
@@ -154,7 +231,6 @@ function getDomainsToModify(modificationType) {
 "tandfonline.com",
 "taylorandfrancis.com",
 "taylorfrancis.com",
-"themeta.news",
 "thieme-connect.com",
 "webofknowledge.com"];
   } 
@@ -179,7 +255,6 @@ else if (modificationType === "CNRS") {
 "pubs.acs.org",
 "repo.scoap3.org",
 "search.ebscohost.com",
-"themeta.news",
 "arabidopsis.org",
 "emeraldinsight.com",
 "girinst.org",
@@ -190,16 +265,3 @@ else if (modificationType === "CNRS") {
   // Default to an empty array if modificationType is neither INSERM nor CNRS
   return [];
 }
-
-browser.webRequest.onBeforeRequest.addListener(
-  modifyURL,
-  { urls: ["<all_urls>"], types: ["main_frame"] },
-  ["blocking"]
-);
-
-// Open options page in a new tab when the extension is installed
-browser.runtime.onInstalled.addListener((details) => {
-  if (details.reason === "install") {
-    browser.tabs.create({ url: browser.extension.getURL("options.html") });
-  }
-});
