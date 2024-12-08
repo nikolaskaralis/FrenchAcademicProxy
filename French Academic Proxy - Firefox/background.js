@@ -1,5 +1,9 @@
 // background.js
 
+const exclusionList = [
+  "static-content.springer.com"
+];
+
 // Store the original URL only once before any modification
 function storeOriginalUrl(url) {
   const urlObj = new URL(url);
@@ -107,10 +111,6 @@ browser.webNavigation.onCompleted.addListener((details) => {
   storeOriginalUrl(details.url);
 }, { url: [{hostContains: "www"}] });
 
-const exclusionList = [
-  "static-content.springer.com"  
-];
-    
 function getDomainsToModify(modificationType) {
   // Define and return the appropriate set of domains based on the modification type
   if (modificationType === "INSERM") {
@@ -233,8 +233,8 @@ function getDomainsToModify(modificationType) {
 "taylorfrancis.com",
 "thieme-connect.com",
 "webofknowledge.com"];
-  } 
-    
+  }
+
 else if (modificationType === "CNRS") {
     return ["access.clarivate.com",
 "apps.webofknowledge.com",
